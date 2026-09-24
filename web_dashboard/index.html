@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PulseRx | HCP Targeting & Territory Sizing (synthetic data)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-left">
+      <div class="brand-badge">
+        <span class="pulse-dot"></span>
+        <span class="brand-title">PulseRx</span>
+        <span class="brand-version">Synthetic data</span>
+      </div>
+      <div class="nav-divider"></div>
+      <div class="nav-subtitle">
+        <strong>HCP targeting &amp; territory sizing</strong>
+      </div>
+    </div>
+    <div class="nav-right">
+      <button class="btn btn-secondary" id="btnToggleSim">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        What-If SFE Simulator
+      </button>
+      <button class="btn btn-secondary" id="btnInspectAlteryx">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Inspect Alteryx Flow (.yxmd)
+      </button>
+      <button class="btn btn-primary" id="btnExportCSV">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        Export SFE Action Plan
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="dashboard-container">
+    
+    <!-- Executive Banner -->
+    <div class="executive-banner">
+      <div class="banner-content">
+        <h2>Commercial Pharma Sales Force Effectiveness (SFE) &amp; Targeting Cockpit</h2>
+        <p id="bannerText"></p>
+      </div>
+      <div class="banner-status-group">
+        <div class="banner-pill"><span>All data synthetic</span></div>
+        <div class="banner-pill"><span>Alteryx .yxmd: authored, not yet run in Designer</span></div>
+      </div>
+    </div>
+
+    <!-- What-If SFE Simulation Panel (Collapsible / Dynamic) -->
+    <section class="simulator-panel" id="simPanel">
+      <div class="sim-header">
+        <div class="sim-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+          <h3>"Retarget, Don't Hire" Dynamic SFE Scenario Simulator</h3>
+        </div>
+        <span class="sim-badge">Computed from the marts</span>
+      </div>
+      <div class="sim-body">
+        <div class="sim-controls">
+          <div class="control-box">
+            <div class="control-label">
+              <span>Tier 1 Call Cadence (Super Core)</span>
+              <strong id="valTier1">18 visits/yr</strong>
+            </div>
+            <input type="range" id="sliderTier1" min="12" max="24" value="18" step="1">
+          </div>
+
+          <div class="control-box">
+            <div class="control-label">
+              <span>Tier 2 Conversion Focus (Competitor Switch)</span>
+              <strong id="valTier2">14 visits/yr</strong>
+            </div>
+            <input type="range" id="sliderTier2" min="8" max="20" value="14" step="1">
+          </div>
+
+          <div class="control-box">
+            <div class="control-label">
+              <span>Tier 3 Cadence (Moderate Opportunity)</span>
+              <strong id="valTier3">6 visits/yr</strong>
+            </div>
+            <input type="range" id="sliderTier3" min="2" max="10" value="6" step="1">
+          </div>
+
+          <div class="control-box">
+            <div class="control-label">
+              <span>Tier 4 Non-Personal Digital Shift</span>
+              <strong id="valTier4">1 visits/yr</strong>
+            </div>
+            <input type="range" id="sliderTier4" min="0" max="4" value="1" step="1">
+          </div>
+
+          <div class="control-box">
+            <div class="control-label">
+              <span>Rep Annual Detailing Capacity</span>
+              <strong id="valCapacity">720 calls/rep</strong>
+            </div>
+            <input type="range" id="sliderCapacity" min="600" max="840" value="720" step="20">
+          </div>
+        </div>
+
+        <div class="sim-results">
+          <div class="sim-result-card highlight-green">
+            <div class="result-label">Tier 1-2 calls short of plan</div>
+            <div class="result-val" id="simResultShortfall">-</div>
+            <div class="result-sub" id="simResultLift">-</div>
+          </div>
+          <div class="sim-result-card">
+            <div class="result-label">Calls the plan needs vs capacity</div>
+            <div class="result-val" id="simResultPlan">-</div>
+            <div class="result-sub" id="simResultPlanSub">-</div>
+          </div>
+          <div class="sim-result-card highlight-blue">
+            <div class="result-label">Overburdened territories</div>
+            <div class="result-val" id="simResultOverburdened">-</div>
+            <div class="result-sub" id="simResultOverSub">-</div>
+          </div>
+          <div class="sim-result-card">
+            <div class="result-label">Reps the plan needs</div>
+            <div class="result-val" id="simResultReps">-</div>
+            <div class="result-sub" id="simResultRepsSub">-</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Executive KPI Scorecards -->
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Brand sales, 12 months (synthetic)</div>
+        <div class="kpi-value" id="kpiSales">-</div>
+        <div class="kpi-meta"><span>At $1,850 per TRx</span></div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">Brand share of market TRx</div>
+        <div class="kpi-value" id="kpiShare">-</div>
+        <div class="kpi-meta"><span id="kpiShareMeta"></span></div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">High-value prescribers reached</div>
+        <div class="kpi-value" id="kpiCoverage">-</div>
+        <div class="kpi-meta danger"><span id="kpiCoverageMeta"></span></div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">Call plan vs field capacity</div>
+        <div class="kpi-value" id="kpiWorkload">-</div>
+        <div class="kpi-meta positive"><span id="kpiWorkloadMeta"></span></div>
+      </div>
+
+      <div class="kpi-card alert-card">
+        <div class="kpi-label">Tier 1-2 call shortfall</div>
+        <div class="kpi-value" id="kpiDeficit">-</div>
+        <div class="kpi-meta danger"><span id="kpiDeficitMeta"></span></div>
+      </div>
+    </section>
+
+    <!-- Interactive Filter Toolbar -->
+    <section class="filter-toolbar">
+      <div class="filter-group">
+        <label>Region</label>
+        <select id="filterRegion">
+          <option value="ALL">All US Regions</option>
+          <option value="Northeast">Northeast (Boston, NYC, Tri-State)</option>
+          <option value="Mid-Atlantic">Mid-Atlantic (Philly, Capital)</option>
+          <option value="Southeast">Southeast (Atlanta, Central FL)</option>
+          <option value="Midwest">Midwest (Chicago, Great Lakes)</option>
+          <option value="South Central">South Central (Houston, Dallas)</option>
+          <option value="West Coast">West Coast (SoCal, NorCal, PNW)</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Clinical Specialty</label>
+        <select id="filterSpecialty">
+          <option value="ALL">All Specialties</option>
+          <option value="Medical Oncology">Medical Oncology</option>
+          <option value="Hematology-Oncology">Hematology-Oncology</option>
+          <option value="Surgical Oncology">Surgical Oncology</option>
+          <option value="Gynecologic Oncology">Gynecologic Oncology</option>
+          <option value="Immunology">Immunology</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Payer Formulary Access</label>
+        <select id="filterPayer">
+          <option value="ALL">All Formulary Statuses</option>
+          <option value="Tier 1">Tier 1: Preferred Unrestricted</option>
+          <option value="Tier 2">Tier 2: Prior Authorization</option>
+          <option value="Tier 3">Tier 3: Step Therapy / Restricted</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Targeting Tier</label>
+        <select id="filterTier">
+          <option value="ALL">Tiers 1 and 2</option>
+          <option value="Tier 1">Tier 1: Protect &amp; Grow</option>
+          <option value="Tier 2">Tier 2: High-Value Conversion</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Min decile</label>
+        <select id="filterDecile">
+          <option value="8" selected>Deciles 8 - 10</option>
+          <option value="9">Deciles 9 - 10</option>
+          <option value="10">Decile 10</option>
+        </select>
+      </div>
+
+      <div class="filter-group search-group">
+        <label>Search Doctor / NPI</label>
+        <input type="text" id="filterSearch" placeholder="Type doctor name or NPI...">
+      </div>
+
+      <button class="btn btn-reset" id="btnResetFilters">Reset</button>
+    </section>
+
+    <!-- Visual Analytics Grid: 2x2 Layout -->
+    <div class="analytics-grid">
+      
+      <!-- Chart 1: 12-Month Market Share Evolution -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <h3>Brand TRx &amp; Market Share Trajectory (12 Months)</h3>
+            <p class="chart-subtitle">PulseRx vs. Primary Competitor (BioZenith) and Legacy (TheraMax)</p>
+          </div>
+          <span class="badge badge-primary">Monthly mart</span>
+        </div>
+        <div class="chart-body">
+          <canvas id="chartTrend"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 2: The 80/20 Lorenz Decile Curve -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <h3>Prescriber Concentration by Decile</h3>
+            <p class="chart-subtitle">Cumulative % of Category Prescriptions vs. Cumulative % of Physicians</p>
+          </div>
+          <span class="badge badge-purple">Deciles 1 - 10</span>
+        </div>
+        <div class="chart-body">
+          <canvas id="chartLorenz"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 3: HCP Opportunity Matrix (Bubble Scatter) -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <h3>HCP Opportunity Matrix (Volume vs. Penetration)</h3>
+            <p class="chart-subtitle">Market TRx vs. PulseRx Share % &bull; Quadrants define call frequency</p>
+          </div>
+          <span class="badge badge-teal">Strategic Tiers</span>
+        </div>
+        <div class="chart-body">
+          <canvas id="chartOpportunity"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 4: Territory Workload & Sizing Optimization -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <h3>Territory Workload &amp; Capacity Alignment</h3>
+            <p class="chart-subtitle">Workload % = Demand / Rep Capacity &bull; "Retarget, Don't Hire"</p>
+          </div>
+          <span class="badge badge-orange">Sizing SFE</span>
+        </div>
+        <div class="chart-body">
+          <canvas id="chartTerritory"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Territory Geo Map & Summary Section -->
+    <section class="territory-geo-section">
+      <div class="chart-header">
+        <div>
+          <h3>Commercial Field Force Alignment: 14 Territories</h3>
+          <p class="chart-subtitle">Geographic distribution of sales districts, assigned reps, workload utilization, and consulting sizing actions.</p>
+        </div>
+        <span class="badge badge-primary">Territory Alignment Map</span>
+      </div>
+
+      <div class="territory-cards-grid" id="territoryGrid">
+        <!-- Dynamically rendered territory alignment cards -->
+      </div>
+    </section>
+
+    <!-- Micro-Targeting & Call Deficit Ledger Table -->
+    <section class="table-section">
+      <div class="table-header">
+        <div>
+          <h3>Physician Micro-Targeting &amp; Field Call Deficit Ledger</h3>
+          <p class="table-subtitle">Showing actionable prescriber priorities, deciles, payer formulary status, and call deficits from the pipeline. Deciles 8-10 only.</p>
+        </div>
+        <div class="table-actions">
+          <span class="record-counter" id="recordCounter">Showing 500 HCPs</span>
+        </div>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="data-table" id="hcpTable">
+          <thead>
+            <tr>
+              <th>NPI</th>
+              <th>Physician Name</th>
+              <th>Specialty</th>
+              <th>Territory</th>
+              <th>Payer Access</th>
+              <th>Decile</th>
+              <th>Market TRx</th>
+              <th>Brand Share</th>
+              <th>Calls Made</th>
+              <th>Target Calls</th>
+              <th>Call Deficit</th>
+              <th>Targeting Tier</th>
+              <th>Action Recommendation</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <!-- Dynamically populated via app.js -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal: Alteryx Pipeline Inspector -->
+  <div class="modal-overlay" id="alteryxModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          <h3>Alteryx workflow (.yxmd) -- authored, not yet run in Designer</h3>
+        </div>
+        <button class="modal-close" id="btnCloseModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="workflow-steps">
+          <div class="step-card">
+            <span class="step-num">Tools 1-4</span>
+            <h4>Input Ingestion</h4>
+            <p>Four Input Data tools read the HCP master, monthly Rx, CRM call log and territory roster CSVs.</p>
+          </div>
+          <div class="step-card">
+            <span class="step-num">Tools 5-6</span>
+            <h4>Aggregation &amp; Formula</h4>
+            <p>Summarize aggregates longitudinal TRx/NRx claims. Formula computes Brand Share % and NRx Adoption Index.</p>
+          </div>
+          <div class="step-card highlight">
+            <span class="step-num">Tool 7</span>
+            <h4>Tile Tool (Deciles 1-10)</h4>
+            <p>Ranks prescribers into 10 equal-record buckets on market TRx (decile 10 = top 10%).</p>
+          </div>
+          <div class="step-card">
+            <span class="step-num">Tools 8-11</span>
+            <h4>SFE Targeting &amp; Joins</h4>
+            <p>Joins HCP master with claims &amp; CRM logs. Formula classifies HCPs into Tiers 1-4 and computes call deficits.</p>
+          </div>
+          <div class="step-card highlight">
+            <span class="step-num">Tools 12-16</span>
+            <h4>Territory Sizing &amp; Output</h4>
+            <p>Summarizes workload vs. rep capacity. Flags over- and under-utilized territories. Writes the HCP and territory marts.</p>
+          </div>
+        </div>
+
+        <div class="code-preview">
+          <div class="code-header">Alteryx Workflow XML (.yxmd) Snippet - Tile &amp; Formula Nodes</div>
+          <pre><code>&lt;Node ToolID="7"&gt;
+  &lt;GuiSettings Plugin="AlteryxBasePluginsGui.Tile.Tile"&gt;
+    &lt;Position x="474" y="198" /&gt;
+  &lt;/GuiSettings&gt;
+  &lt;Properties&gt;
+    &lt;Configuration&gt;
+      &lt;Method&gt;EqualRecords&lt;/Method&gt;
+      &lt;EqualRecords&gt;
+        &lt;NumTiles value="10" /&gt;
+        &lt;EqualRecordsSortField&gt;Annual_Market_TRx&lt;/EqualRecordsSortField&gt;
+      &lt;/EqualRecords&gt;
+    &lt;/Configuration&gt;
+  &lt;/Properties&gt;
+&lt;/Node&gt;</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div>PulseRx &bull; synthetic data &bull; marts produced by <code>alteryx/run_pipeline.py</code></div>
+    <div class="footer-links">
+      <span>Workflow: <code>alteryx/PulseRx_ETL_Targeting.yxmd</code></span> &bull; 
+      <span>Workbook: <code>tableau/PulseRx_Executive_Dashboard.twb</code></span> &bull;
+      <span>Data Mart: <code>output_marts/tableau_hcp_targeting_mart.csv</code></span>
+    </div>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

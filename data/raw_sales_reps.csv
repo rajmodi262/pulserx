@@ -1,0 +1,32 @@
+Rep_ID,Territory_ID,District,Region,Rep_Name,Annual_Call_Capacity
+REP_NE_01_A,TERR_NE_01,Boston Metro,Northeast,Field Rep NE_01-A,720
+REP_NE_01_B,TERR_NE_01,Boston Metro,Northeast,Field Rep NE_01-B,720
+REP_NE_02_A,TERR_NE_02,NYC Metro,Northeast,Field Rep NE_02-A,720
+REP_NE_02_B,TERR_NE_02,NYC Metro,Northeast,Field Rep NE_02-B,720
+REP_NE_02_C,TERR_NE_02,NYC Metro,Northeast,Field Rep NE_02-C,720
+REP_NE_03_A,TERR_NE_03,Tri-State / NJ,Northeast,Field Rep NE_03-A,720
+REP_NE_03_B,TERR_NE_03,Tri-State / NJ,Northeast,Field Rep NE_03-B,720
+REP_MA_01_A,TERR_MA_01,Philly Metro,Mid-Atlantic,Field Rep MA_01-A,720
+REP_MA_01_B,TERR_MA_01,Philly Metro,Mid-Atlantic,Field Rep MA_01-B,720
+REP_MA_02_A,TERR_MA_02,Capital District,Mid-Atlantic,Field Rep MA_02-A,720
+REP_MA_02_B,TERR_MA_02,Capital District,Mid-Atlantic,Field Rep MA_02-B,720
+REP_SE_01_A,TERR_SE_01,Atlanta Metro,Southeast,Field Rep SE_01-A,720
+REP_SE_01_B,TERR_SE_01,Atlanta Metro,Southeast,Field Rep SE_01-B,720
+REP_SE_02_A,TERR_SE_02,Florida Central,Southeast,Field Rep SE_02-A,720
+REP_SE_02_B,TERR_SE_02,Florida Central,Southeast,Field Rep SE_02-B,720
+REP_MW_01_A,TERR_MW_01,Chicago Metro,Midwest,Field Rep MW_01-A,720
+REP_MW_01_B,TERR_MW_01,Chicago Metro,Midwest,Field Rep MW_01-B,720
+REP_MW_01_C,TERR_MW_01,Chicago Metro,Midwest,Field Rep MW_01-C,720
+REP_MW_02_A,TERR_MW_02,Great Lakes,Midwest,Field Rep MW_02-A,720
+REP_MW_02_B,TERR_MW_02,Great Lakes,Midwest,Field Rep MW_02-B,720
+REP_TX_01_A,TERR_TX_01,Houston Metro,South Central,Field Rep TX_01-A,720
+REP_TX_01_B,TERR_TX_01,Houston Metro,South Central,Field Rep TX_01-B,720
+REP_TX_02_A,TERR_TX_02,Dallas Metro,South Central,Field Rep TX_02-A,720
+REP_TX_02_B,TERR_TX_02,Dallas Metro,South Central,Field Rep TX_02-B,720
+REP_WC_01_A,TERR_WC_01,SoCal Metro,West Coast,Field Rep WC_01-A,720
+REP_WC_01_B,TERR_WC_01,SoCal Metro,West Coast,Field Rep WC_01-B,720
+REP_WC_01_C,TERR_WC_01,SoCal Metro,West Coast,Field Rep WC_01-C,720
+REP_WC_02_A,TERR_WC_02,NorCal Bay Area,West Coast,Field Rep WC_02-A,720
+REP_WC_02_B,TERR_WC_02,NorCal Bay Area,West Coast,Field Rep WC_02-B,720
+REP_WC_03_A,TERR_WC_03,Pacific NW,West Coast,Field Rep WC_03-A,720
+REP_WC_03_B,TERR_WC_03,Pacific NW,West Coast,Field Rep WC_03-B,720

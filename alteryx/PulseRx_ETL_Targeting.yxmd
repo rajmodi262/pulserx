@@ -1,0 +1,444 @@
+<?xml version="1.0"?>
+<AlteryxDocument yxmdVer="2023.2">
+  <Nodes>
+    <!-- Node 1: Input HCP Master -->
+    <Node ToolID="1">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.DbFileInput.DbFileInput">
+        <Position x="54" y="54" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <Passwords />
+          <File RecordLimit="" SearchSubDirs="False" FileFormat="0" OutputFileName="">..\data\raw_hcp_universe.csv</File>
+          <FormatSpecificOptions>
+            <HeaderRow>True</HeaderRow>
+            <IgnoreErrors>False</IgnoreErrors>
+            <AllowShareWrite>False</AllowShareWrite>
+            <ImportLine>1</ImportLine>
+            <FieldLen>254</FieldLen>
+            <Single1AutoPredict>False</Single1AutoPredict>
+            <CodePage>65001</CodePage>
+          </FormatSpecificOptions>
+        </Configuration>
+        <Annotation DisplayMode="0">
+          <Name>Input HCP Master</Name>
+          <DefaultAnnotationText>raw_hcp_universe.csv</DefaultAnnotationText>
+        </Annotation>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileInput" />
+    </Node>
+
+    <!-- Node 2: Input Monthly Rx Claims -->
+    <Node ToolID="2">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.DbFileInput.DbFileInput">
+        <Position x="54" y="198" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <Passwords />
+          <File RecordLimit="" SearchSubDirs="False" FileFormat="0" OutputFileName="">..\data\raw_monthly_rx_claims.csv</File>
+          <FormatSpecificOptions>
+            <HeaderRow>True</HeaderRow>
+            <CodePage>65001</CodePage>
+          </FormatSpecificOptions>
+        </Configuration>
+        <Annotation DisplayMode="0">
+          <Name>Input Monthly Rx</Name>
+          <DefaultAnnotationText>raw_monthly_rx_claims.csv</DefaultAnnotationText>
+        </Annotation>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileInput" />
+    </Node>
+
+    <!-- Node 3: Input Sales Rep Calls -->
+    <Node ToolID="3">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.DbFileInput.DbFileInput">
+        <Position x="54" y="342" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <Passwords />
+          <File RecordLimit="" SearchSubDirs="False" FileFormat="0" OutputFileName="">..\data\raw_rep_call_logs.csv</File>
+          <FormatSpecificOptions>
+            <HeaderRow>True</HeaderRow>
+            <CodePage>65001</CodePage>
+          </FormatSpecificOptions>
+        </Configuration>
+        <Annotation DisplayMode="0">
+          <Name>Input Rep Calls</Name>
+          <DefaultAnnotationText>raw_rep_call_logs.csv</DefaultAnnotationText>
+        </Annotation>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileInput" />
+    </Node>
+
+    <!-- Node 4: Input Territory Quotas -->
+    <Node ToolID="4">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.DbFileInput.DbFileInput">
+        <Position x="54" y="486" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <Passwords />
+          <File RecordLimit="" SearchSubDirs="False" FileFormat="0" OutputFileName="">..\data\raw_territory_quotas.csv</File>
+          <FormatSpecificOptions>
+            <HeaderRow>True</HeaderRow>
+            <CodePage>65001</CodePage>
+          </FormatSpecificOptions>
+        </Configuration>
+        <Annotation DisplayMode="0">
+          <Name>Input Territory Quotas</Name>
+          <DefaultAnnotationText>raw_territory_quotas.csv</DefaultAnnotationText>
+        </Annotation>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileInput" />
+    </Node>
+
+    <!-- Node 5: Summarize Rx Claims by HCP -->
+    <Node ToolID="5">
+      <GuiSettings Plugin="AlteryxSpatialPluginsGui.Summarize.Summarize">
+        <Position x="210" y="198" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <SummarizeFields>
+            <SummarizeField field="HCP_NPI" action="GroupBy" rename="HCP_NPI" />
+            <SummarizeField field="Market_TRx" action="Sum" rename="Annual_Market_TRx" />
+            <SummarizeField field="PulseRx_TRx" action="Sum" rename="Annual_PulseRx_TRx" />
+            <SummarizeField field="PulseRx_NRx" action="Sum" rename="Annual_PulseRx_NRx" />
+            <SummarizeField field="BioZenith_TRx" action="Sum" rename="Annual_BioZenith_TRx" />
+            <SummarizeField field="PulseRx_Sales_USD" action="Sum" rename="Annual_PulseRx_Sales_USD" />
+          </SummarizeFields>
+        </Configuration>
+        <Annotation DisplayMode="0">
+          <Name>Summarize 12M Rx by HCP</Name>
+          <DefaultAnnotationText>Group By HCP_NPI, Sum TRx</DefaultAnnotationText>
+        </Annotation>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxSpatialPluginsEngine.dll" EngineDllEntryPoint="AlteryxSummarize" />
+    </Node>
+
+    <!-- Node 6: Formula - Market Share & Penetration -->
+    <Node ToolID="6">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.Formula.Formula">
+        <Position x="342" y="198" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <FormulaFields>
+            <FormulaField expression="([Annual_PulseRx_TRx] / [Annual_Market_TRx]) * 100" field="PulseRx_Market_Share_Pct" type="Double" size="8" />
+            <FormulaField expression="([Annual_PulseRx_NRx] / [Annual_PulseRx_TRx]) * 100" field="PulseRx_NRx_Ratio_Pct" type="Double" size="8" />
+          </FormulaFields>
+        </Configuration>
+        <Annotation DisplayMode="0">
+          <Name>Calc Share Metrics</Name>
+          <DefaultAnnotationText>PulseRx_Market_Share_Pct = ([Annual_PulseRx_TRx] / [Annual_Market_TRx]) * 100</DefaultAnnotationText>
+        </Annotation>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxFormula" />
+    </Node>
+
+    <!-- Node 7: Tile Tool - Deciles (1 to 10) -->
+    <Node ToolID="7">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.Tile.Tile">
+        <Position x="474" y="198" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <Method>EqualRecords</Method>
+          <EqualRecords>
+            <NumTiles value="10" />
+            <EqualRecordsSortField>Annual_Market_TRx</EqualRecordsSortField>
+            <SortAscending value="True" />
+          </EqualRecords>
+          <GroupFields orderChanged="False" />
+        </Configuration>
+        <Annotation DisplayMode="0">
+          <Name>Decile Tile Tool (1-10)</Name>
+          <DefaultAnnotationText>Equal Records: 10 Tiles on Annual_Market_TRx</DefaultAnnotationText>
+        </Annotation>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxTile" />
+    </Node>
+
+    <!-- Node 8: Summarize Rep Calls by HCP -->
+    <Node ToolID="8">
+      <GuiSettings Plugin="AlteryxSpatialPluginsGui.Summarize.Summarize">
+        <Position x="210" y="342" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <SummarizeFields>
+            <SummarizeField field="HCP_NPI" action="GroupBy" rename="HCP_NPI" />
+            <SummarizeField field="Call_ID" action="Count" rename="Total_Calls_2025" />
+            <SummarizeField field="Samples_Provided" action="Sum" rename="Total_Samples_Delivered" />
+            <SummarizeField field="Detailing_Minutes" action="Sum" rename="Total_Detailing_Minutes" />
+          </SummarizeFields>
+        </Configuration>
+        <Annotation DisplayMode="0">
+          <Name>Summarize Rep Activity</Name>
+          <DefaultAnnotationText>Group By HCP_NPI, Count Calls</DefaultAnnotationText>
+        </Annotation>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxSpatialPluginsEngine.dll" EngineDllEntryPoint="AlteryxSummarize" />
+    </Node>
+
+    <!-- Node 9: Join HCP Master + Deciled Rx -->
+    <Node ToolID="9">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.Join.Join">
+        <Position x="594" y="114" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <JoinInfo connection="Left">
+            <Field field="HCP_NPI" />
+          </JoinInfo>
+          <JoinInfo connection="Right">
+            <Field field="HCP_NPI" />
+          </JoinInfo>
+        </Configuration>
+        <Annotation DisplayMode="0">
+          <Name>Join HCP + Rx Deciles</Name>
+          <DefaultAnnotationText>HCP_NPI = HCP_NPI</DefaultAnnotationText>
+        </Annotation>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxJoin" />
+    </Node>
+
+    <!-- Node 10: Join (HCP+Rx) + Rep Calls -->
+    <Node ToolID="10">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.Join.Join">
+        <Position x="726" y="210" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <JoinInfo connection="Left">
+            <Field field="HCP_NPI" />
+          </JoinInfo>
+          <JoinInfo connection="Right">
+            <Field field="HCP_NPI" />
+          </JoinInfo>
+        </Configuration>
+        <Annotation DisplayMode="0">
+          <Name>Join with Calls</Name>
+          <DefaultAnnotationText>HCP_NPI = HCP_NPI</DefaultAnnotationText>
+        </Annotation>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxJoin" />
+    </Node>
+
+    <!-- Node 11: Formula - Targeting Tiers & Frequency Recommendations -->
+    <Node ToolID="11">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.Formula.Formula">
+        <Position x="858" y="210" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <FormulaFields>
+            <FormulaField expression="IF [Tile_Num] >= 8 AND [PulseRx_Market_Share_Pct] >= 22 THEN 'Tier 1: Protect &amp; Grow' ELSEIF [Tile_Num] >= 8 AND [PulseRx_Market_Share_Pct] &lt; 22 THEN 'Tier 2: High-Value Conversion' ELSEIF [Tile_Num] IN (5,6,7) THEN 'Tier 3: Moderate Opportunity' ELSE 'Tier 4: Omnichannel' ENDIF" field="Targeting_Tier" type="V_WString" size="64" />
+            <FormulaField expression="IF Contains([Targeting_Tier], 'Tier 1') THEN 18 ELSEIF Contains([Targeting_Tier], 'Tier 2') THEN 14 ELSEIF Contains([Targeting_Tier], 'Tier 3') THEN 6 ELSE 1 ENDIF" field="Recommended_Annual_Calls" type="Int32" size="4" />
+            <FormulaField expression="[Recommended_Annual_Calls] - [Total_Calls_2025]" field="Call_Deficit" type="Int32" size="4" />
+          </FormulaFields>
+        </Configuration>
+        <Annotation DisplayMode="0">
+          <Name>SFE Sizing &amp; Tiers</Name>
+          <DefaultAnnotationText>Targeting_Tier, Recommended_Annual_Calls, Call_Deficit</DefaultAnnotationText>
+        </Annotation>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxFormula" />
+    </Node>
+
+    <!-- Node 12: Output Tableau HCP Mart -->
+    <Node ToolID="12">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.DbFileOutput.DbFileOutput">
+        <Position x="1002" y="210" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <File FileFormat="0" MaxRecords="">..\output_marts\tableau_hcp_targeting_mart.csv</File>
+          <Passwords />
+          <FormatSpecificOptions>
+            <LineEndStyle>CRLF</LineEndStyle>
+            <Delimeter>,</Delimeter>
+            <ForceQuotes>False</ForceQuotes>
+            <HeaderRow>True</HeaderRow>
+            <CodePage>65001</CodePage>
+          </FormatSpecificOptions>
+        </Configuration>
+        <Annotation DisplayMode="0">
+          <Name>Output Tableau HCP Mart</Name>
+          <DefaultAnnotationText>tableau_hcp_targeting_mart.csv</DefaultAnnotationText>
+        </Annotation>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileOutput" />
+    </Node>
+
+    <!-- Node 13: Summarize Territory Workload -->
+    <Node ToolID="13">
+      <GuiSettings Plugin="AlteryxSpatialPluginsGui.Summarize.Summarize">
+        <Position x="858" y="366" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <SummarizeFields>
+            <SummarizeField field="Territory_ID" action="GroupBy" rename="Territory_ID" />
+            <SummarizeField field="HCP_NPI" action="Count" rename="Total_HCPs" />
+            <SummarizeField field="Annual_Market_TRx" action="Sum" rename="Total_Market_TRx" />
+            <SummarizeField field="Annual_PulseRx_TRx" action="Sum" rename="Total_PulseRx_TRx" />
+            <SummarizeField field="Annual_PulseRx_Sales_USD" action="Sum" rename="Total_PulseRx_Sales_USD" />
+            <SummarizeField field="Total_Calls_2025" action="Sum" rename="Total_Calls_Delivered" />
+            <SummarizeField field="Recommended_Annual_Calls" action="Sum" rename="Total_Calls_Required" />
+          </SummarizeFields>
+        </Configuration>
+        <Annotation DisplayMode="0">
+          <Name>Rollup Territory Workload</Name>
+          <DefaultAnnotationText>Group By Territory_ID</DefaultAnnotationText>
+        </Annotation>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxSpatialPluginsEngine.dll" EngineDllEntryPoint="AlteryxSummarize" />
+    </Node>
+
+    <!-- Node 14: Join Territory Workload + Quotas -->
+    <Node ToolID="14">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.Join.Join">
+        <Position x="990" y="426" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <JoinInfo connection="Left">
+            <Field field="Territory_ID" />
+          </JoinInfo>
+          <JoinInfo connection="Right">
+            <Field field="Territory_ID" />
+          </JoinInfo>
+        </Configuration>
+        <Annotation DisplayMode="0">
+          <Name>Join Quotas</Name>
+          <DefaultAnnotationText>Territory_ID = Territory_ID</DefaultAnnotationText>
+        </Annotation>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxJoin" />
+    </Node>
+
+    <!-- Node 15: Formula - Sizing Decisions -->
+    <Node ToolID="15">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.Formula.Formula">
+        <Position x="1122" y="426" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <FormulaFields>
+            <FormulaField expression="([Total_Calls_Required] / [Target_Call_Capacity]) * 100" field="Workload_Utilization_Pct" type="Double" size="8" />
+            <FormulaField expression="([Total_PulseRx_Sales_USD] / [Annual_Sales_Quota_USD]) * 100" field="Quota_Attainment_Pct" type="Double" size="8" />
+            <FormulaField expression="IF [Workload_Utilization_Pct] > 115 THEN 'Overburdened (Retarget &amp; Carve Out)' ELSEIF [Workload_Utilization_Pct] &lt; 80 THEN 'Underutilized (Expand Reach)' ELSE 'Optimally Sized' ENDIF" field="Sizing_Consulting_Action" type="V_WString" size="64" />
+          </FormulaFields>
+        </Configuration>
+        <Annotation DisplayMode="0">
+          <Name>Consulting Sizing Rules</Name>
+          <DefaultAnnotationText>Workload_Utilization_Pct, Quota_Attainment_Pct, Sizing_Consulting_Action</DefaultAnnotationText>
+        </Annotation>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxFormula" />
+    </Node>
+
+    <!-- Node 16: Output Tableau Territory Mart -->
+    <Node ToolID="16">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.DbFileOutput.DbFileOutput">
+        <Position x="1254" y="426" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <File FileFormat="0" MaxRecords="">..\output_marts\tableau_territory_alignment_mart.csv</File>
+          <Passwords />
+          <FormatSpecificOptions>
+            <LineEndStyle>CRLF</LineEndStyle>
+            <Delimeter>,</Delimeter>
+            <ForceQuotes>False</ForceQuotes>
+            <HeaderRow>True</HeaderRow>
+            <CodePage>65001</CodePage>
+          </FormatSpecificOptions>
+        </Configuration>
+        <Annotation DisplayMode="0">
+          <Name>Output Tableau Territory Mart</Name>
+          <DefaultAnnotationText>tableau_territory_alignment_mart.csv</DefaultAnnotationText>
+        </Annotation>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileOutput" />
+    </Node>
+  </Nodes>
+
+  <Connections>
+    <!-- Connect DbFileInput (2) to Summarize (5) -->
+    <Connection>
+      <Origin ToolID="2" Connection="Output" />
+      <Destination ToolID="5" Connection="Input" />
+    </Connection>
+    <!-- Connect Summarize (5) to Formula (6) -->
+    <Connection>
+      <Origin ToolID="5" Connection="Output" />
+      <Destination ToolID="6" Connection="Input" />
+    </Connection>
+    <!-- Connect Formula (6) to Tile (7) -->
+    <Connection>
+      <Origin ToolID="6" Connection="Output" />
+      <Destination ToolID="7" Connection="Input" />
+    </Connection>
+    <!-- Connect DbFileInput (1) and Tile (7) to Join (9) -->
+    <Connection>
+      <Origin ToolID="1" Connection="Output" />
+      <Destination ToolID="9" Connection="Left" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="7" Connection="Output" />
+      <Destination ToolID="9" Connection="Right" />
+    </Connection>
+    <!-- Connect DbFileInput (3) to Summarize (8) -->
+    <Connection>
+      <Origin ToolID="3" Connection="Output" />
+      <Destination ToolID="8" Connection="Input" />
+    </Connection>
+    <!-- Connect Join (9) Join Output and Summarize (8) to Join (10) -->
+    <Connection>
+      <Origin ToolID="9" Connection="Join" />
+      <Destination ToolID="10" Connection="Left" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="8" Connection="Output" />
+      <Destination ToolID="10" Connection="Right" />
+    </Connection>
+    <!-- Connect Join (10) to Formula (11) -->
+    <Connection>
+      <Origin ToolID="10" Connection="Join" />
+      <Destination ToolID="11" Connection="Input" />
+    </Connection>
+    <!-- Connect Formula (11) to DbFileOutput (12) -->
+    <Connection>
+      <Origin ToolID="11" Connection="Output" />
+      <Destination ToolID="12" Connection="Input" />
+    </Connection>
+    <!-- Connect Formula (11) to Summarize (13) -->
+    <Connection>
+      <Origin ToolID="11" Connection="Output" />
+      <Destination ToolID="13" Connection="Input" />
+    </Connection>
+    <!-- Connect Summarize (13) and DbFileInput (4) to Join (14) -->
+    <Connection>
+      <Origin ToolID="13" Connection="Output" />
+      <Destination ToolID="14" Connection="Left" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="4" Connection="Output" />
+      <Destination ToolID="14" Connection="Right" />
+    </Connection>
+    <!-- Connect Join (14) to Formula (15) -->
+    <Connection>
+      <Origin ToolID="14" Connection="Join" />
+      <Destination ToolID="15" Connection="Input" />
+    </Connection>
+    <!-- Connect Formula (15) to DbFileOutput (16) -->
+    <Connection>
+      <Origin ToolID="15" Connection="Output" />
+      <Destination ToolID="16" Connection="Input" />
+    </Connection>
+  </Connections>
+</AlteryxDocument>

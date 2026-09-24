@@ -1,0 +1,42 @@
+{
+  "arithmetic": {
+    "hcps": 2500,
+    "rx_rows": 30000,
+    "crm_calls": 16500,
+    "territories": 14,
+    "reps": 31,
+    "calls_per_rep_capacity": 720,
+    "top20pct_hcps_share_of_market_trx_pct": 63.2,
+    "high_value_hcps": 750,
+    "high_value_hcps_with_zero_calls": 212,
+    "high_value_hcps_with_zero_calls_pct": 28.3,
+    "calls_on_deciles_1_4_pct": 29.9,
+    "tier_counts": {
+      "Tier 1: Protect & Grow": 414,
+      "Tier 2: High-Value Conversion": 336,
+      "Tier 3: Moderate Opportunity": 750,
+      "Tier 4: Omnichannel": 1000
+    },
+    "tier4_calls_beyond_plan": 4447,
+    "calls_beyond_plan_all_tiers": 7577,
+    "tier1_2_call_shortfall": 6416,
+    "plan_required_calls": 17656,
+    "field_capacity_calls": 22320,
+    "plan_utilization_pct": 79.1,
+    "reps_needed_for_plan": 25,
+    "territory_actions": {
+      "Optimally Sized": 7,
+      "Underutilized (Expand Reach)": 7
+    },
+    "brand_sales_usd": 750889100
+  },
+  "scenario": {
+    "assumed_trx_per_extra_call_high_value": 3.2,
+    "net_revenue_per_trx_usd": 1850,
+    "calls_moved_to_tier1_2": 6416,
+    "incremental_sales_usd_low": 18991360,
+    "incremental_sales_usd_base": 37982720,
+    "incremental_sales_usd_high": 56974080,
+    "base_as_pct_of_brand_sales": 5.1
+  }
+}

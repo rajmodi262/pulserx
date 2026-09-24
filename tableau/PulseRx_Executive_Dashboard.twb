@@ -1,0 +1,426 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<workbook source-build='2023.2.0' source-platform='win' version='18.1' xmlns:user='http://www.tableausoftware.com/xml/user'>
+  <document-format-change-manifest>
+    <SheetIdentifierTracking />
+    <WindowsPersistSimpleIdentifiers />
+  </document-format-change-manifest>
+  <preferences>
+    <preference name='ui.encoding.shelf.height' value='24' />
+    <preference name='ui.shelf.height' value='26' />
+  </preferences>
+
+  <!-- ========================================== -->
+  <!-- DATASOURCES                                -->
+  <!-- ========================================== -->
+  <datasources>
+    <!-- Parameters DataSource -->
+    <datasource hasconnection='false' inline='true' name='Parameters' version='18.1'>
+      <aliases enabled='yes' />
+      <column caption='Targeting Decile Cutoff' datatype='integer' default-format='*0' name='[Parameter_Targeting_Decile_Cutoff]' param-domain-type='range' role='measure' type='quantitative' value='8'>
+        <calculation class='tableau' formula='8' />
+        <range max='10' min='1' />
+      </column>
+      <column caption='Rep Annual Call Capacity' datatype='integer' default-format='*#,##0' name='[Parameter_Rep_Annual_Call_Capacity]' param-domain-type='range' role='measure' type='quantitative' value='1440'>
+        <calculation class='tableau' formula='1440' />
+        <range max='2400' min='800' granularity='60' />
+      </column>
+      <column caption='Brand Share Parity Threshold %' datatype='real' default-format='p0.0%' name='[Parameter_Target_Brand_Share_Threshold]' param-domain-type='range' role='measure' type='quantitative' value='0.22'>
+        <calculation class='tableau' formula='0.22' />
+        <range max='0.50' min='0.10' granularity='0.01' />
+      </column>
+    </datasource>
+
+    <!-- Primary Mart: HCP Targeting Mart -->
+    <datasource caption='Tableau HCP Targeting Mart' inline='true' name='federated.pulserx_hcp_mart' version='18.1'>
+      <connection class='federated'>
+        <named-connections>
+          <named-connection caption='tableau_hcp_targeting_mart' name='textscan.pulserx_csv'>
+            <connection class='textscan' directory='../output_marts' filename='tableau_hcp_targeting_mart.csv' />
+          </named-connection>
+        </named-connections>
+        <relation connection='textscan.pulserx_csv' name='tableau_hcp_targeting_mart.csv' table='[tableau_hcp_targeting_mart#csv]' type='table'>
+          <columns character-set='UTF-8' header='yes' locale='en_US' separator=','>
+            <column datatype='string' name='HCP_NPI' ordinal='0' />
+            <column datatype='string' name='HCP_Name' ordinal='1' />
+            <column datatype='string' name='Specialty' ordinal='2' />
+            <column datatype='string' name='Practice_Setting' ordinal='3' />
+            <column datatype='string' name='Payer_Formulary_Access' ordinal='4' />
+            <column datatype='string' name='Digital_Affinity' ordinal='5' />
+            <column datatype='string' name='Is_KOL' ordinal='6' />
+            <column datatype='string' name='Territory_ID' ordinal='7' />
+            <column datatype='string' name='District' ordinal='8' />
+            <column datatype='string' name='Region' ordinal='9' />
+            <column datatype='string' name='State' ordinal='10' />
+            <column datatype='real' name='Latitude' ordinal='11' />
+            <column datatype='real' name='Longitude' ordinal='12' />
+            <column datatype='integer' name='Annual_Market_TRx' ordinal='13' />
+            <column datatype='integer' name='Annual_PulseRx_TRx' ordinal='14' />
+            <column datatype='integer' name='Annual_PulseRx_NRx' ordinal='15' />
+            <column datatype='integer' name='Annual_BioZenith_TRx' ordinal='16' />
+            <column datatype='integer' name='Annual_TheraMax_TRx' ordinal='17' />
+            <column datatype='integer' name='Annual_PulseRx_Sales_USD' ordinal='18' />
+            <column datatype='integer' name='Annual_Market_Sales_USD' ordinal='19' />
+            <column datatype='real' name='PulseRx_Market_Share_Pct' ordinal='20' />
+            <column datatype='real' name='PulseRx_NRx_Ratio_Pct' ordinal='21' />
+            <column datatype='integer' name='Market_Decile' ordinal='22' />
+            <column datatype='integer' name='Total_Calls_2025' ordinal='23' />
+            <column datatype='integer' name='In_Person_Calls' ordinal='24' />
+            <column datatype='integer' name='Virtual_Calls' ordinal='25' />
+            <column datatype='string' name='Targeting_Tier' ordinal='26' />
+            <column datatype='integer' name='Recommended_Annual_Calls' ordinal='27' />
+            <column datatype='integer' name='Call_Deficit' ordinal='28' />
+            <column datatype='real' name='Call_Attainment_Pct' ordinal='29' />
+            <column datatype='string' name='Field_Engagement_Status' ordinal='30' />
+            <column datatype='real' name='Projected_Incremental_TRx_Lift' ordinal='31' />
+            <column datatype='real' name='Projected_Incremental_Sales_USD' ordinal='32' />
+          </columns>
+        </relation>
+      </connection>
+      <aliases enabled='yes' />
+
+      <!-- Calculated Field 1: FIXED LOD Territory Market Share -->
+      <column caption='Territory Brand Share (LOD)' datatype='real' name='[Calculation_Territory_Share_LOD]' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='{ FIXED [Territory_ID] : SUM([Annual_PulseRx_TRx]) } / { FIXED [Territory_ID] : SUM([Annual_Market_TRx]) } * 100' />
+      </column>
+
+      <!-- Calculated Field 2: Parameter-Driven Dynamic Targeting Tier -->
+      <column caption='Dynamic Targeting Tier (Param)' datatype='string' name='[Calculation_Dynamic_Target_Tier]' role='dimension' type='nominal'>
+        <calculation class='tableau' formula='IF [Market_Decile] &gt;= [Parameters].[Parameter_Targeting_Decile_Cutoff] AND [PulseRx_Market_Share_Pct] &gt;= ([Parameters].[Parameter_Target_Brand_Share_Threshold] * 100) THEN &quot;Tier 1: Core Defenders&quot; ELSEIF [Market_Decile] &gt;= [Parameters].[Parameter_Targeting_Decile_Cutoff] AND [PulseRx_Market_Share_Pct] &lt; ([Parameters].[Parameter_Target_Brand_Share_Threshold] * 100) THEN &quot;Tier 2: High-Value Switch Targets&quot; ELSEIF [Market_Decile] &gt;= 5 THEN &quot;Tier 3: Moderate Opportunity&quot; ELSE &quot;Tier 4: Digital Non-Personal&quot; END' />
+      </column>
+
+      <!-- Calculated Field 3: Parameter-Driven Dynamic Quadrant -->
+      <column caption='Dynamic Opportunity Quadrant' datatype='string' name='[Calculation_Quadrant]' role='dimension' type='nominal'>
+        <calculation class='tableau' formula='IF [Market_Decile] &gt;= [Parameters].[Parameter_Targeting_Decile_Cutoff] AND [PulseRx_Market_Share_Pct] &gt;= ([Parameters].[Parameter_Target_Brand_Share_Threshold] * 100) THEN &quot;Quadrant I: Core Protectors&quot; ELSEIF [Market_Decile] &gt;= [Parameters].[Parameter_Targeting_Decile_Cutoff] AND [PulseRx_Market_Share_Pct] &lt; ([Parameters].[Parameter_Target_Brand_Share_Threshold] * 100) THEN &quot;Quadrant II: High-Value Switch Targets&quot; ELSEIF [Market_Decile] &lt; [Parameters].[Parameter_Targeting_Decile_Cutoff] AND [PulseRx_Market_Share_Pct] &gt;= ([Parameters].[Parameter_Target_Brand_Share_Threshold] * 100) THEN &quot;Quadrant III: Loyal Moderate Prescribers&quot; ELSE &quot;Quadrant IV: Low Yield / Digital Channel&quot; END' />
+      </column>
+
+      <!-- Calculated Field 4: High-Decile Target Reach -->
+      <column caption='Decile 8-10 Target Reach %' datatype='real' default-format='p0.0%' name='[Calculation_Decile_Reach]' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='COUNTD(IF [Market_Decile] &gt;= [Parameters].[Parameter_Targeting_Decile_Cutoff] AND [Total_Calls_2025] &gt; 0 THEN [HCP_NPI] END) / COUNTD(IF [Market_Decile] &gt;= [Parameters].[Parameter_Targeting_Decile_Cutoff] THEN [HCP_NPI] END)' />
+      </column>
+
+      <!-- Calculated Field 5: Detailing Call Efficiency / ROI -->
+      <column caption='Detailing Call ROI (TRx/Call)' datatype='real' name='[Calculation_Call_ROI]' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='ZN(SUM([Annual_PulseRx_TRx])) / NULLIF(SUM([Total_Calls_2025]), 0)' />
+      </column>
+
+      <!-- Calculated Field 6: Dynamic Call Deficit Alert -->
+      <column caption='Call Deficit Alert' datatype='string' name='[Calculation_Deficit_Alert]' role='dimension' type='nominal'>
+        <calculation class='tableau' formula='IF [Call_Deficit] &gt; 5 THEN &quot;Critical Under-Detained (&gt;5 Calls)&quot; ELSEIF [Call_Deficit] &gt; 0 THEN &quot;Moderate Deficit (1-5 Calls)&quot; ELSE &quot;Target Met / Surplus&quot; END' />
+      </column>
+      <layout dim-ordering='alphabetic' dim-percentage='0.5' measure-ordering='alphabetic' measure-percentage='0.5' show-structure='true' />
+    </datasource>
+
+    <!-- Secondary Mart: Territory Alignment Mart -->
+    <datasource caption='Tableau Territory Alignment Mart' inline='true' name='federated.pulserx_territory_mart' version='18.1'>
+      <connection class='federated'>
+        <named-connections>
+          <named-connection caption='tableau_territory_alignment_mart' name='textscan.pulserx_terr_csv'>
+            <connection class='textscan' directory='../output_marts' filename='tableau_territory_alignment_mart.csv' />
+          </named-connection>
+        </named-connections>
+        <relation connection='textscan.pulserx_terr_csv' name='tableau_territory_alignment_mart.csv' table='[tableau_territory_alignment_mart#csv]' type='table'>
+          <columns character-set='UTF-8' header='yes' locale='en_US' separator=','>
+            <column datatype='string' name='Territory_ID' ordinal='0' />
+            <column datatype='integer' name='Total_HCPs' ordinal='1' />
+            <column datatype='integer' name='Tier_1_2_HCPs' ordinal='2' />
+            <column datatype='integer' name='Total_Market_TRx' ordinal='3' />
+            <column datatype='integer' name='Total_PulseRx_TRx' ordinal='4' />
+            <column datatype='real' name='Total_PulseRx_Sales_USD' ordinal='5' />
+            <column datatype='integer' name='Total_Calls_Delivered' ordinal='6' />
+            <column datatype='integer' name='Total_Calls_Required' ordinal='7' />
+            <column datatype='integer' name='High_Decile_HCPs' ordinal='8' />
+            <column datatype='integer' name='High_Decile_Reached' ordinal='9' />
+            <column datatype='string' name='Region' ordinal='10' />
+            <column datatype='string' name='District' ordinal='11' />
+            <column datatype='string' name='State' ordinal='12' />
+            <column datatype='integer' name='Rep_Count' ordinal='13' />
+            <column datatype='real' name='Annual_Sales_Quota_USD' ordinal='14' />
+            <column datatype='integer' name='Target_Call_Capacity' ordinal='15' />
+            <column datatype='real' name='Target_Decile_Coverage_Goal_Pct' ordinal='16' />
+            <column datatype='real' name='Workload_Utilization_Pct' ordinal='17' />
+            <column datatype='real' name='Quota_Attainment_Pct' ordinal='18' />
+            <column datatype='real' name='High_Decile_Coverage_Pct' ordinal='19' />
+            <column datatype='string' name='Sizing_Consulting_Action' ordinal='20' />
+          </columns>
+        </relation>
+      </connection>
+      <aliases enabled='yes' />
+
+      <!-- Calculated Field: Dynamic Workload Capacity Utilization -->
+      <column caption='Dynamic Capacity (Calls)' datatype='integer' name='[Calculation_Dynamic_Capacity]' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='[Rep_Count] * [Parameters].[Parameter_Rep_Annual_Call_Capacity]' />
+      </column>
+      <column caption='Dynamic Workload Utilization %' datatype='real' default-format='p0.0%' name='[Calculation_Dynamic_Utilization]' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='SUM([Total_Calls_Required]) / SUM([Calculation_Dynamic_Capacity])' />
+      </column>
+      <column caption='Dynamic Workload Status' datatype='string' name='[Calculation_Dynamic_Workload_Status]' role='dimension' type='nominal'>
+        <calculation class='tableau' formula='IF [Calculation_Dynamic_Utilization] &gt; 1.10 THEN &quot;Overburdened (&gt;110% Capacity)&quot; ELSEIF [Calculation_Dynamic_Utilization] &lt; 0.80 THEN &quot;Underutilized (&lt;80% Capacity)&quot; ELSE &quot;Balanced Workload (80-110%)&quot; END' />
+      </column>
+      <layout dim-ordering='alphabetic' dim-percentage='0.5' measure-ordering='alphabetic' measure-percentage='0.5' show-structure='true' />
+    </datasource>
+  </datasources>
+
+  <!-- ========================================== -->
+  <!-- WORKSHEETS                                 -->
+  <!-- ========================================== -->
+  <worksheets>
+    <!-- Worksheet 1: Regional Brand Performance & Market Share -->
+    <worksheet name='01_Brand_Performance_Summary'>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='Tableau HCP Targeting Mart' name='federated.pulserx_hcp_mart' />
+            <datasource name='Parameters' />
+          </datasources>
+          <datasource-dependencies datasource='federated.pulserx_hcp_mart'>
+            <column datatype='real' name='[Annual_PulseRx_Sales_USD]' role='measure' type='quantitative' />
+            <column datatype='string' name='[Region]' role='dimension' type='nominal' />
+            <column datatype='string' name='[District]' role='dimension' type='nominal' />
+            <column-instance column='[Region]' derivation='None' name='[none:Region:nk]' pivot='key' type='nominal' />
+            <column-instance column='[District]' derivation='None' name='[none:District:nk]' pivot='key' type='nominal' />
+            <column-instance column='[Annual_PulseRx_Sales_USD]' derivation='Sum' name='[sum:Annual_PulseRx_Sales_USD:qk]' pivot='key' type='quantitative' />
+          </datasource-dependencies>
+          <aggregation value='true' />
+        </view>
+        <style />
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Bar' />
+            <encodings>
+              <color column='[federated.pulserx_hcp_mart].[none:Region:nk]' />
+            </encodings>
+          </pane>
+        </panes>
+        <rows>[federated.pulserx_hcp_mart].[none:Region:nk] / [federated.pulserx_hcp_mart].[none:District:nk]</rows>
+        <cols>[federated.pulserx_hcp_mart].[sum:Annual_PulseRx_Sales_USD:qk]</cols>
+      </table>
+    </worksheet>
+
+    <!-- Worksheet 2: Prescriber Opportunity Matrix (Dynamic Parameters) -->
+    <worksheet name='02_Opportunity_Scatter_Matrix'>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='Tableau HCP Targeting Mart' name='federated.pulserx_hcp_mart' />
+            <datasource name='Parameters' />
+          </datasources>
+          <datasource-dependencies datasource='federated.pulserx_hcp_mart'>
+            <column datatype='real' name='[PulseRx_Market_Share_Pct]' role='measure' type='quantitative' />
+            <column datatype='integer' name='[Annual_Market_TRx]' role='measure' type='quantitative' />
+            <column datatype='string' name='[Calculation_Dynamic_Target_Tier]' role='dimension' type='nominal' />
+            <column-instance column='[PulseRx_Market_Share_Pct]' derivation='None' name='[none:PulseRx_Market_Share_Pct:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[Annual_Market_TRx]' derivation='None' name='[none:Annual_Market_TRx:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[Calculation_Dynamic_Target_Tier]' derivation='None' name='[none:Calculation_Dynamic_Target_Tier:nk]' pivot='key' type='nominal' />
+          </datasource-dependencies>
+          <aggregation value='false' />
+        </view>
+        <style />
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Circle' />
+            <encodings>
+              <color column='[federated.pulserx_hcp_mart].[none:Calculation_Dynamic_Target_Tier:nk]' />
+            </encodings>
+          </pane>
+        </panes>
+        <rows>[federated.pulserx_hcp_mart].[none:Annual_Market_TRx:qk]</rows>
+        <cols>[federated.pulserx_hcp_mart].[none:PulseRx_Market_Share_Pct:qk]</cols>
+      </table>
+    </worksheet>
+
+    <!-- Worksheet 3: Lorenz Decile Concentration Curve (80/20 Rule) -->
+    <worksheet name='03_Lorenz_Decile_Concentration'>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='Tableau HCP Targeting Mart' name='federated.pulserx_hcp_mart' />
+          </datasources>
+          <datasource-dependencies datasource='federated.pulserx_hcp_mart'>
+            <column datatype='integer' name='[Market_Decile]' role='dimension' type='ordinal' />
+            <column datatype='integer' name='[Annual_Market_TRx]' role='measure' type='quantitative' />
+            <column datatype='string' name='[HCP_NPI]' role='dimension' type='nominal' />
+            <column-instance column='[Market_Decile]' derivation='None' name='[none:Market_Decile:ok]' pivot='key' type='ordinal' />
+            <column-instance column='[Annual_Market_TRx]' derivation='Sum' name='[sum:Annual_Market_TRx:qk]' pivot='key' type='quantitative'>
+              <table-calc ordering-type='Rows' type='PctTotal' />
+            </column-instance>
+          </datasource-dependencies>
+          <aggregation value='true' />
+        </view>
+        <style />
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Bar' />
+            <encodings>
+              <color column='[federated.pulserx_hcp_mart].[none:Market_Decile:ok]' />
+            </encodings>
+          </pane>
+        </panes>
+        <rows>[federated.pulserx_hcp_mart].[sum:Annual_Market_TRx:qk]</rows>
+        <cols>[federated.pulserx_hcp_mart].[none:Market_Decile:ok]</cols>
+      </table>
+    </worksheet>
+
+    <!-- Worksheet 4: Territory Workload vs Capacity Sizing Model -->
+    <worksheet name='04_Territory_Workload_Capacity'>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='Tableau Territory Alignment Mart' name='federated.pulserx_territory_mart' />
+            <datasource name='Parameters' />
+          </datasources>
+          <datasource-dependencies datasource='federated.pulserx_territory_mart'>
+            <column datatype='string' name='[Territory_ID]' role='dimension' type='nominal' />
+            <column datatype='integer' name='[Total_Calls_Required]' role='measure' type='quantitative' />
+            <column datatype='string' name='[Calculation_Dynamic_Workload_Status]' role='dimension' type='nominal' />
+            <column-instance column='[Territory_ID]' derivation='None' name='[none:Territory_ID:nk]' pivot='key' type='nominal' />
+            <column-instance column='[Total_Calls_Required]' derivation='Sum' name='[sum:Total_Calls_Required:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[Calculation_Dynamic_Workload_Status]' derivation='None' name='[none:Calculation_Dynamic_Workload_Status:nk]' pivot='key' type='nominal' />
+          </datasource-dependencies>
+          <aggregation value='true' />
+        </view>
+        <style />
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Bar' />
+            <encodings>
+              <color column='[federated.pulserx_territory_mart].[none:Calculation_Dynamic_Workload_Status:nk]' />
+            </encodings>
+          </pane>
+        </panes>
+        <rows>[federated.pulserx_territory_mart].[none:Territory_ID:nk]</rows>
+        <cols>[federated.pulserx_territory_mart].[sum:Total_Calls_Required:qk]</cols>
+      </table>
+    </worksheet>
+
+    <!-- Worksheet 5: Actionable Prescriber Call Deficit Ledger -->
+    <worksheet name='05_HCP_Call_Deficit_Ledger'>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='Tableau HCP Targeting Mart' name='federated.pulserx_hcp_mart' />
+            <datasource name='Parameters' />
+          </datasources>
+          <datasource-dependencies datasource='federated.pulserx_hcp_mart'>
+            <column datatype='string' name='[HCP_NPI]' role='dimension' type='nominal' />
+            <column datatype='string' name='[HCP_Name]' role='dimension' type='nominal' />
+            <column datatype='string' name='[Specialty]' role='dimension' type='nominal' />
+            <column datatype='string' name='[Territory_ID]' role='dimension' type='nominal' />
+            <column datatype='integer' name='[Market_Decile]' role='dimension' type='ordinal' />
+            <column datatype='string' name='[Targeting_Tier]' role='dimension' type='nominal' />
+            <column datatype='integer' name='[Total_Calls_2025]' role='measure' type='quantitative' />
+            <column datatype='integer' name='[Recommended_Annual_Calls]' role='measure' type='quantitative' />
+            <column datatype='integer' name='[Call_Deficit]' role='measure' type='quantitative' />
+            <column datatype='real' name='[Projected_Incremental_Sales_USD]' role='measure' type='quantitative' />
+            <column-instance column='[HCP_NPI]' derivation='None' name='[none:HCP_NPI:nk]' pivot='key' type='nominal' />
+            <column-instance column='[HCP_Name]' derivation='None' name='[none:HCP_Name:nk]' pivot='key' type='nominal' />
+            <column-instance column='[Specialty]' derivation='None' name='[none:Specialty:nk]' pivot='key' type='nominal' />
+            <column-instance column='[Territory_ID]' derivation='None' name='[none:Territory_ID:nk]' pivot='key' type='nominal' />
+            <column-instance column='[Market_Decile]' derivation='None' name='[none:Market_Decile:ok]' pivot='key' type='ordinal' />
+            <column-instance column='[Targeting_Tier]' derivation='None' name='[none:Targeting_Tier:nk]' pivot='key' type='nominal' />
+            <column-instance column='[Total_Calls_2025]' derivation='Sum' name='[sum:Total_Calls_2025:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[Recommended_Annual_Calls]' derivation='Sum' name='[sum:Recommended_Annual_Calls:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[Call_Deficit]' derivation='Sum' name='[sum:Call_Deficit:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[Projected_Incremental_Sales_USD]' derivation='Sum' name='[sum:Projected_Incremental_Sales_USD:qk]' pivot='key' type='quantitative' />
+          </datasource-dependencies>
+          <aggregation value='true' />
+        </view>
+        <style />
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Text' />
+            <encodings>
+              <text column='[federated.pulserx_hcp_mart].[sum:Call_Deficit:qk]' />
+            </encodings>
+          </pane>
+        </panes>
+        <rows>[federated.pulserx_hcp_mart].[none:Territory_ID:nk] / [federated.pulserx_hcp_mart].[none:HCP_Name:nk] / [federated.pulserx_hcp_mart].[none:Specialty:nk] / [federated.pulserx_hcp_mart].[none:Targeting_Tier:nk]</rows>
+        <cols>[federated.pulserx_hcp_mart].[sum:Projected_Incremental_Sales_USD:qk]</cols>
+      </table>
+    </worksheet>
+  </worksheets>
+
+  <!-- ========================================== -->
+  <!-- DASHBOARDS                                 -->
+  <!-- ========================================== -->
+  <dashboards>
+    <dashboard name='PulseRx_Commercial_Executive_Cockpit'>
+      <style />
+      <size maxheight='1080' maxwidth='1920' minheight='768' minwidth='1200' sizing-mode='proportional' />
+      <zones>
+        <zone h='100000' id='1' type='layout-basic' w='100000' x='0' y='0'>
+          <!-- Header Zone -->
+          <zone h='10000' id='2' type='title' w='100000' x='0' y='0'>
+            <formatted-text>
+              <run fontcolor='#ffffff' fontsize='18' bold='true'>PulseRx: Commercial Strategy &amp; Sales Force Effectiveness Cockpit</run>
+              <run fontcolor='#94a3b8' fontsize='10'>&#10;Portfolio Optimization | Decile Concentration &amp; Dynamic Territory Sizing ("Retarget, Don&apos;t Hire")</run>
+            </formatted-text>
+          </zone>
+          <!-- Top Analytics Row: Lorenz Decile Curve & Prescriber Opportunity Matrix -->
+          <zone h='42000' id='3' type='layout-flow' w='100000' x='0' y='10000'>
+            <zone h='42000' id='4' name='03_Lorenz_Decile_Concentration' w='50000' x='0' y='10000'>
+              <zone-style>
+                <format attr='border-color' value='#1e293b' />
+                <format attr='border-style' value='solid' />
+                <format attr='border-width' value='1' />
+              </zone-style>
+            </zone>
+            <zone h='42000' id='5' name='02_Opportunity_Scatter_Matrix' w='50000' x='50000' y='10000'>
+              <zone-style>
+                <format attr='border-color' value='#1e293b' />
+                <format attr='border-style' value='solid' />
+                <format attr='border-width' value='1' />
+              </zone-style>
+            </zone>
+          </zone>
+          <!-- Bottom Analytics Row: Territory Sizing & Actionable Deficit Ledger -->
+          <zone h='48000' id='6' type='layout-flow' w='100000' x='0' y='52000'>
+            <zone h='48000' id='7' name='04_Territory_Workload_Capacity' w='50000' x='0' y='52000'>
+              <zone-style>
+                <format attr='border-color' value='#1e293b' />
+                <format attr='border-style' value='solid' />
+                <format attr='border-width' value='1' />
+              </zone-style>
+            </zone>
+            <zone h='48000' id='8' name='05_HCP_Call_Deficit_Ledger' w='50000' x='50000' y='52000'>
+              <zone-style>
+                <format attr='border-color' value='#1e293b' />
+                <format attr='border-style' value='solid' />
+                <format attr='border-width' value='1' />
+              </zone-style>
+            </zone>
+          </zone>
+        </zone>
+      </zones>
+    </dashboard>
+  </dashboards>
+
+  <!-- ========================================== -->
+  <!-- WINDOWS / WORKSPACE VIEW                   -->
+  <!-- ========================================== -->
+  <windows source-height='30'>
+    <window class='dashboard' maximized='true' name='PulseRx_Commercial_Executive_Cockpit'>
+      <viewpoints />
+      <active id='-1' />
+    </window>
+    <window class='worksheet' name='01_Brand_Performance_Summary' />
+    <window class='worksheet' name='02_Opportunity_Scatter_Matrix' />
+    <window class='worksheet' name='03_Lorenz_Decile_Concentration' />
+    <window class='worksheet' name='04_Territory_Workload_Capacity' />
+    <window class='worksheet' name='05_HCP_Call_Deficit_Ledger' />
+  </windows>
+</workbook>

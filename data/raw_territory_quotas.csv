@@ -1,0 +1,15 @@
+Territory_ID,Region,District,State,Rep_Count,Annual_Sales_Quota_USD,Target_Call_Capacity,Target_Decile_Coverage_Goal_Pct
+TERR_NE_01,Northeast,Boston Metro,MA,2,4800000,1440,0.85
+TERR_NE_02,Northeast,NYC Metro,NY,3,7200000,2160,0.85
+TERR_NE_03,Northeast,Tri-State / NJ,NJ,2,4800000,1440,0.85
+TERR_MA_01,Mid-Atlantic,Philly Metro,PA,2,4800000,1440,0.85
+TERR_MA_02,Mid-Atlantic,Capital District,MD,2,4800000,1440,0.85
+TERR_SE_01,Southeast,Atlanta Metro,GA,2,4800000,1440,0.85
+TERR_SE_02,Southeast,Florida Central,FL,2,4800000,1440,0.85
+TERR_MW_01,Midwest,Chicago Metro,IL,3,7200000,2160,0.85
+TERR_MW_02,Midwest,Great Lakes,OH,2,4800000,1440,0.85
+TERR_TX_01,South Central,Houston Metro,TX,2,4800000,1440,0.85
+TERR_TX_02,South Central,Dallas Metro,TX,2,4800000,1440,0.85
+TERR_WC_01,West Coast,SoCal Metro,CA,3,7200000,2160,0.85
+TERR_WC_02,West Coast,NorCal Bay Area,CA,2,4800000,1440,0.85
+TERR_WC_03,West Coast,Pacific NW,WA,2,4800000,1440,0.85
